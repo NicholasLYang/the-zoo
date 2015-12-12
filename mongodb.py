@@ -15,14 +15,12 @@ def addUser(firstName, lastName, uname, pword, email):
     if result == 2:
         userId = getNextRowId("users") + 1
         db.users.insert(
-        {
-        "first name": firstName,
+        {"first name": firstName,
         "last name": lastName,
         "username": uname,
         "password": pword,
         "email":email,
-        "user id": userId
-        })
+        "user id": userId})
     else:
         return "Sorry, username is taken"
 
@@ -48,16 +46,10 @@ def authenticate(uname, pword):
 
 def removeUsername(uname):
     db.users.remove(
-        {
-            "username" : uname
-        }
-        )
+        {"username" : uname})
 def removeUserId(userId):
     db.users.remove(
-        {
-            "user id": userId
-        }
-        )
+        {"user id": userId})
     
 '''
 <----------------- POSTS ----------------->
@@ -67,49 +59,34 @@ def addPost(authorId, title, text):
     commentIds = []
     postId = getNextRowId("posts") + 1
     db.posts.insert(
-        {
-        "post id": postId,
+        {"post id": postId,
         "author id": authorId,
         "title":title,
         "text":text,
-        "comment ids":commentIds
-        }
-        )
+        "comment ids":commentIds})
 
 # Returns a cursor with posts that have a certain title. 
 def findPostsbyTitle(title):
     results = db.posts.find(
-        {
-            "title":title
-        }
-        )
+        {"title":title})
     return result
 
 
 # Finds a post by its post id
 def findPostbyPostId(postId):
     result = db.posts.find_one(
-        {
-            "post id":postId
-        }
-        )
+        {"post id":postId})
     return result
 # Returns the cursor to the posts written by an id
 def findUserIdsPosts(id):
     result = db.posts.find(
-    {
-        "authorId":id
-    }
-    )
+    {"authorId":id})
     return result
 
 # Returns the cursor to the posts written by a username
 def findUsernamesPosts(username):
     result = db.posts.find(
-        {
-        "author username": username
-        }
-        )
+        {"author username": username})
     return result
 '''
 <----------------- COMMENTS ----------------->
@@ -117,28 +94,19 @@ def findUsernamesPosts(username):
 def addComment (postId, authorId, text):
     commentId = getNextRowId("comments") + 1
     db.comments.insert(
-        {
-        "comment id":commentId,
+        {"comment id":commentId,
         "author id": authorId,
         "text":text,
-        "postId": postId
-        }
-        )
+        "postId": postId})
     
 
 def findUsernamesComments(username):
     result = db.comments.find(
-        {
-        "author username": username
-        }
-        )
+        {"author username": username})
     
 def findIdsComments(authorId):
     result = db.comments.find(
-        {
-        "author id": authorId
-        }
-        )
+        {"author id": authorId})
 
 '''
 <----------------- MISC ----------------->
@@ -152,3 +120,37 @@ def getNextRowId(collection):
     except (IndexError, KeyError):
         rid = 0
     return rid
+
+'''
+<----------------- COMMUNITY ----------------->
+'''
+def addCommunity(commName, lastName, userList, accessCode):
+    # Searches for user in database. If there's no user by that username, then it'll be added
+    result = findCommunitybyName(commName)
+    if result == 2:
+        commId = getNextRowId("communities") + 1
+        db.users.insert(
+        {"community name": commName,
+        "community id":  commId,
+        "user list": userList,
+        "access code": accessCode})
+    else:
+        return "Sorry, community exists"
+
+def addUserToCommunity(community_ID, userID):
+	userList = db['communities'].find(
+		{"community id": community_ID})[0]['user list']
+	userList.add(userID)
+	db['communities'].update({"community id": community_ID}, 
+							{"user list": userList})
+
+def findCommunitybyName(commName):
+    result = db.communities.find_one({"community name": commName})
+    if (result == None):
+        return 2
+    return result
+
+
+def removeCommunity(commID):
+    db.communities.remove(
+        {"community id": commID})
